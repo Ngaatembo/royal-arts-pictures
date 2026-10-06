@@ -20,7 +20,7 @@ Open `index.html` in a browser, or run `python3 -m http.server 8000` and visit h
 Open `app.js`. The `PACKAGES` list holds the packages and prices. `BOOKING_WHATSAPP` holds the WhatsApp number in international format without the plus sign.
 
 ## Deploy
-Any static host works. For Cloudflare Pages: connect this repo, leave the build command empty and set the output directory to `/`.
+Cloudflare Workers Builds: build command `npm run build` (does nothing), deploy command `npx wrangler deploy`, root `/`. `wrangler.jsonc` serves the site files and `.assetsignore` keeps config files out of the public site.
 
 ## To do before launch
 - Replace the cropped photos and logo with the original files from the client

@@ -1,0 +1,5 @@
+{
+  "name": "royal-arts-pictures",
+  "private": true,
+  "scripts": { "build": "echo 'Static site, nothing to build'" }
+}
