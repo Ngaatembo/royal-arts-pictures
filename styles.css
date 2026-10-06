@@ -290,3 +290,4 @@ body { background: radial-gradient(1200px 600px at 50% -10%, rgba(201,162,77,.16
 .grp { font-size: 18px; color: var(--gold-hi); margin: 34px 0 14px; }
 .grp:first-of-type { margin-top: 0; }
 .optgrp { margin: 10px 0 2px; font-size: 13px; color: var(--gold); letter-spacing: .06em; }
+.card .small a, footer p a { overflow-wrap: anywhere; }
