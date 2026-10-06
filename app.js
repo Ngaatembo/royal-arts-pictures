@@ -20,6 +20,11 @@ const PACKAGES = [
     included: ["150+ pictures", "A4 portrait", "Coverage from 10:00am to 4:30pm"] },
   { id: "marooro-4", name: "Marooro Package 4", price: 250, billing: "day", description: "Photos + Video",
     included: ["190+ pictures", "5-minute highlight video", "A2 portrait", "Delivered on flash drive"] },
+  // Mini sessions: from the Royal Arts Facebook 2026 price list. One fixed price per session.
+  { id: "mini-1", group: "mini", name: "Mini Package 1", price: 5,  billing: "session", description: "Mini session", included: ["6 pictures"] },
+  { id: "mini-2", group: "mini", name: "Mini Package 2", price: 15, billing: "session", description: "Mini session", included: ["15 minutes"] },
+  { id: "mini-3", group: "mini", name: "Mini Package 3", price: 20, billing: "session", description: "Mini session", included: ["20 minutes"] },
+  { id: "mini-4", group: "mini", name: "Mini Package 4", price: 30, billing: "session", description: "Mini session", included: ["30 minutes"] },
   { id: "custom", name: "Custom quote", price: null, billing: "hour", custom: true,
     description: "Coverage that does not fit a package, including wall portraits.", included: [] }
 ];
@@ -28,7 +33,7 @@ const PACKAGES = [
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const el = {
-  grid: $("#pkGrid"), opts: $("#pkOpts"), form: $("#orderForm"), minus: $("#minus"), plus: $("#plus"),
+  grid: $("#pkGrid"), mini: $("#miniGrid"), opts: $("#pkOpts"), form: $("#orderForm"), minus: $("#minus"), plus: $("#plus"),
   qty: $("#qty"), hint: $("#qtyHint"), err: $("#err"), date: $("#date"), name: $("#name"), phone: $("#phone"),
   occasion: $("#occasion"), venue: $("#venue"), notes: $("#notes"),
   sInc: $("#sInc"), sPkg: $("#sPkg"), sQty: $("#sQty"), sRate: $("#sRate"), sTotal: $("#sTotal"),
@@ -38,23 +43,32 @@ const el = {
 let state = { pkg: PACKAGES[0].id, qty: 1, message: "" };
 
 /* 4. PACKAGE RENDERING --------------------------------------------------- */
-const unit = (p, n = 1) => (p.billing === "day" ? "day" : "hour") + (n === 1 ? "" : "s");
+const unit = (p, n = 1) => (p.billing === "day" ? "day" : p.billing === "session" ? "session" : "hour") + (n === 1 ? "" : "s");
+const isFixed = p => p.custom || p.billing === "session";
 const money = n => "$" + n.toLocaleString("en-US");
 const getPkg = id => PACKAGES.find(p => p.id === id);
 const priceText = p => (p.custom || p.price == null ? "Price to confirm" : `${money(p.price)} per ${unit(p)}`);
 
-function renderPackages() {
-  el.grid.innerHTML = PACKAGES.filter(p => !p.custom).map(p => `
+function cardHtml(p) {
+  return `
     <article class="card">
       <h3>${p.name}</h3>
-      <div class="price">${p.price == null ? "<small>Price to confirm</small>" : `${money(p.price)} <small>per ${unit(p)}</small>`}</div>
+      <div class="price">${money(p.price)} <small>per ${unit(p)}</small></div>
       ${p.description ? `<p class="small">${p.description}</p>` : ""}
       ${p.included.length ? `<ul>${p.included.map(i => `<li>${i}</li>`).join("")}</ul>` : ""}
       <button class="btn" type="button" data-book="${p.id}">Book this package</button>
-    </article>`).join("");
-  el.opts.innerHTML = PACKAGES.map(p => `
-    <div class="opt"><input type="radio" name="pkg" id="o-${p.id}" value="${p.id}">
-      <label for="o-${p.id}"><b>${p.name}</b><span class="p">${p.custom ? "Quotation" : p.price == null ? "TBC" : money(p.price) + "/" + unit(p)}</span></label></div>`).join("");
+    </article>`;
+}
+function renderPackages() {
+  el.grid.innerHTML = PACKAGES.filter(p => !p.custom && !p.group).map(cardHtml).join("");
+  el.mini.innerHTML = PACKAGES.filter(p => p.group === "mini").map(cardHtml).join("");
+  let last = "";
+  el.opts.innerHTML = PACKAGES.map(p => {
+    const g = p.custom ? "Something different" : p.group === "mini" ? "Mini sessions" : "Marooro packages";
+    const head = g !== last ? `<p class="optgrp">${g}</p>` : ""; last = g;
+    return head + `<div class="opt"><input type="radio" name="pkg" id="o-${p.id}" value="${p.id}">
+      <label for="o-${p.id}"><b>${p.name}${p.group === "mini" ? " (" + p.included[0] + ")" : ""}</b><span class="p">${p.custom ? "Quotation" : money(p.price) + "/" + unit(p)}</span></label></div>`;
+  }).join("");
 }
 
 /* 5. ORDER CALCULATIONS -------------------------------------------------- */
@@ -68,13 +82,13 @@ function updateSummary() {
   const { p, total } = calc();
   $$('input[name="pkg"]').forEach(r => (r.checked = r.value === state.pkg));
   el.qty.textContent = state.qty;
-  el.minus.disabled = p.custom || state.qty <= 1;
-  el.plus.disabled = p.custom || state.qty >= MAX_QTY;
-  el.hint.textContent = p.custom ? "Coverage is agreed with the studio in the quotation." :
+  el.minus.disabled = isFixed(p) || state.qty <= 1;
+  el.plus.disabled = isFixed(p) || state.qty >= MAX_QTY;
+  el.hint.textContent = p.custom ? "Coverage is agreed with the studio in the quotation." : p.billing === "session" ? "One fixed-price session." :
     `${p.billing === "day" ? "Charged per day" : "Charged per hour"}. Choose 1 to ${MAX_QTY} ${unit(p, 2)}.`;
   el.sInc.innerHTML = [p.description, ...p.included].filter(Boolean).map(i => `<li>${i}</li>`).join("");
   el.sPkg.textContent = p.name;
-  el.sQty.textContent = p.custom ? "To be discussed" : `${state.qty} ${unit(p, state.qty)}`;
+  el.sQty.textContent = p.custom ? "To be discussed" : p.billing === "session" ? `1 session (${p.included[0]})` : `${state.qty} ${unit(p, state.qty)}`;
   el.sRate.textContent = priceText(p);
   el.sTotal.textContent = p.custom ? "Custom quotation" : total == null ? "To be confirmed" : money(total);
 }
@@ -117,7 +131,7 @@ function buildMessage() {
     `Occasion: ${el.occasion.value}`, `Date: ${fmtDate(el.date.value)}`, `Venue: ${el.venue.value.trim() || "Not yet decided"}`, "",
     `Package: ${p.name}`
   ];
-  if (!custom) lines.push(`Coverage: ${state.qty} ${unit(p, state.qty)}`);
+  if (!custom) lines.push(`Coverage: ${p.billing === "session" ? "1 session (" + p.included[0] + ")" : state.qty + " " + unit(p, state.qty)}`);
   lines.push(`Estimated total: ${custom ? "Custom quotation" : total == null ? "To be confirmed" : money(total)}`, "",
     "Additional details:", el.notes.value.trim() || "None", "",
     custom ? "Please send me a quotation." : "Please confirm availability and the final quotation.", "Thank you.");
@@ -204,12 +218,12 @@ function init() {
   el.date.min = todayISO();
   setPackage(PACKAGES[0].id);
 
-  el.grid.addEventListener("click", e => {
+  [el.grid, el.mini].forEach(g => g.addEventListener("click", e => {
     const b = e.target.closest("[data-book]"); if (!b) return;
     setPackage(b.dataset.book);
     $("#order").scrollIntoView({ behavior: "smooth" });
     setTimeout(() => $(`#o-${b.dataset.book}`).focus({ preventScroll: true }), 450);
-  });
+  }));
   el.opts.addEventListener("change", e => setPackage(e.target.value, 1));
   el.minus.addEventListener("click", () => { if (state.qty > 1) { state.qty--; updateSummary(); } });
   el.plus.addEventListener("click", () => { if (state.qty < MAX_QTY) { state.qty++; updateSummary(); } });
