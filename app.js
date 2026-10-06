@@ -56,14 +56,14 @@ function cardHtml(p) {
       <div class="price">${money(p.price)} <small>per ${unit(p)}</small></div>
       ${p.description ? `<p class="small">${p.description}</p>` : ""}
       ${p.included.length ? `<ul>${p.included.map(i => `<li>${i}</li>`).join("")}</ul>` : ""}
-      <button class="btn" type="button" data-book="${p.id}">Book this package</button>
+      <a class="btn" href="book.html?pkg=${p.id}">Book this package</a>
     </article>`;
 }
 function renderPackages() {
-  el.grid.innerHTML = PACKAGES.filter(p => !p.custom && !p.group).map(cardHtml).join("");
-  el.mini.innerHTML = PACKAGES.filter(p => p.group === "mini").map(cardHtml).join("");
+  if (el.grid) el.grid.innerHTML = PACKAGES.filter(p => !p.custom && !p.group).map(cardHtml).join("");
+  if (el.mini) el.mini.innerHTML = PACKAGES.filter(p => p.group === "mini").map(cardHtml).join("");
   let last = "";
-  el.opts.innerHTML = PACKAGES.map(p => {
+  if (el.opts) el.opts.innerHTML = PACKAGES.map(p => {
     const g = p.custom ? "Something different" : p.group === "mini" ? "Mini sessions" : "Marooro packages";
     const head = g !== last ? `<p class="optgrp">${g}</p>` : ""; last = g;
     return head + `<div class="opt"><input type="radio" name="pkg" id="o-${p.id}" value="${p.id}">
@@ -215,44 +215,46 @@ function addStickyCta() {
 
 function init() {
   renderPackages();
-  el.date.min = todayISO();
-  setPackage(PACKAGES[0].id);
-
-  [el.grid, el.mini].forEach(g => g.addEventListener("click", e => {
-    const b = e.target.closest("[data-book]"); if (!b) return;
-    setPackage(b.dataset.book);
-    $("#order").scrollIntoView({ behavior: "smooth" });
-    setTimeout(() => $(`#o-${b.dataset.book}`).focus({ preventScroll: true }), 450);
-  }));
-  el.opts.addEventListener("change", e => setPackage(e.target.value, 1));
-  el.minus.addEventListener("click", () => { if (state.qty > 1) { state.qty--; updateSummary(); } });
-  el.plus.addEventListener("click", () => { if (state.qty < MAX_QTY) { state.qty++; updateSummary(); } });
-  el.form.addEventListener("submit", onSubmit);
-  el.form.addEventListener("input", () => { el.err.textContent = ""; });
-  el.copy.addEventListener("click", copyOrder);
-
-  // Start another enquiry without reloading
-  const again = document.createElement("button");
-  again.type = "button"; again.className = "btn ghost"; again.textContent = "Start another enquiry";
-  $(".acts", el.done).appendChild(again);
-  again.addEventListener("click", () => {
-    el.form.reset(); el.done.hidden = true; el.err.textContent = ""; state.message = "";
-    setPackage(PACKAGES[0].id); $("#order").scrollIntoView({ behavior: "smooth" });
-  });
-
-  el.chips.forEach(c => c.addEventListener("click", () => filterGallery(c.dataset.f)));
-  $$("figure", el.gal).forEach(fig => {
-    fig.tabIndex = 0; fig.setAttribute("role", "button"); fig.setAttribute("aria-label", "View larger: " + $("figcaption", fig).textContent);
-    fig.addEventListener("click", () => openLightbox(fig));
-    fig.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(fig); } });
-  });
-  lb.addEventListener("click", e => { if (e.target.closest(".lb-prev")) showLightbox(lbIdx - 1);
+  if (el.form) {
+    el.date.min = todayISO();
+    const want = new URLSearchParams(location.search).get("pkg");
+    setPackage(getPkg(want) ? want : PACKAGES[0].id);
+    el.opts.addEventListener("change", e => setPackage(e.target.value, 1));
+    el.minus.addEventListener("click", () => { if (state.qty > 1) { state.qty--; updateSummary(); } });
+    el.plus.addEventListener("click", () => { if (state.qty < MAX_QTY) { state.qty++; updateSummary(); } });
+    el.form.addEventListener("submit", onSubmit);
+    el.form.addEventListener("input", () => { el.err.textContent = ""; });
+    el.copy.addEventListener("click", copyOrder);
+    const again = document.createElement("button");
+    again.type = "button"; again.className = "btn ghost"; again.textContent = "Start another enquiry";
+    $(".acts", el.done).appendChild(again);
+    again.addEventListener("click", () => {
+      el.form.reset(); el.done.hidden = true; el.err.textContent = ""; state.message = "";
+      setPackage(PACKAGES[0].id); window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+  if (el.gal) {
+    el.chips.forEach(c => c.addEventListener("click", () => filterGallery(c.dataset.f)));
+    $$("figure", el.gal).forEach(fig => {
+      fig.tabIndex = 0; fig.setAttribute("role", "button"); fig.setAttribute("aria-label", "View larger: " + $("figcaption", fig).textContent);
+      fig.addEventListener("click", () => openLightbox(fig));
+      fig.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(fig); } });
+    });
+  }
+  lb.addEventListener("click", e => {
+    if (e.target.closest(".lb-prev")) showLightbox(lbIdx - 1);
     else if (e.target.closest(".lb-next")) showLightbox(lbIdx + 1);
     else if (e.target === lb || e.target.closest(".lb-x")) closeLightbox(); });
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape") closeLightbox();
+    if (e.key === "Escape") { closeLightbox(); closeMenu(); }
     if (!lb.hidden && lbList.length > 1 && (e.key === "ArrowRight" || e.key === "ArrowLeft")) showLightbox(lbIdx + (e.key === "ArrowRight" ? 1 : -1));
   });
+  // Mobile menu and current page
+  const menu = $(".menu"), nav = $("#nav");
+  menu.addEventListener("click", () => { const o = nav.classList.toggle("open"); menu.setAttribute("aria-expanded", String(o)); menu.textContent = o ? "Close" : "Menu"; });
+  const here = location.pathname.split("/").pop().replace(".html", "") || "index";
+  $$("nav a").forEach(a => { if (a.getAttribute("href").replace(".html", "") === here) a.setAttribute("aria-current", "page"); });
   addStickyCta();
 }
+function closeMenu() { const nav = $("#nav"), menu = $(".menu"); if (nav) { nav.classList.remove("open"); menu.setAttribute("aria-expanded", "false"); menu.textContent = "Menu"; } }
 init();

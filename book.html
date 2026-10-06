@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Book a shoot | Royal Arts Pictures</title>
+<meta name="description" content="Royal Arts Pictures, photography and videography in Marondera, Zimbabwe. Choose a package and send a booking enquiry on WhatsApp.">
+<meta name="theme-color" content="#0b0a08">
+<link rel="icon" href="assets/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Royal Arts Pictures, home">
+      <img class="logo" src="assets/logo.png" alt="" width="44" height="42">
+      <span><b>ROYAL</b><small>Arts Pictures</small></span>
+    </a>
+    <nav aria-label="Main" id="nav">
+      <a class="l" href="work.html">Our work</a>
+      <a class="l" href="services.html">Services</a>
+      <a class="l" href="packages.html">Packages</a>
+      <a class="l" href="about.html">About</a>
+      <a class="l" href="contact.html">Contact</a>
+      <a class="btn" href="book.html">Book</a>
+    </nav>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  </div>
+</header>
+
+<main id="top">
+  <section id="order">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Book a shoot</p>
+        <h1>Place your order</h1>
+        <p>Choose a package, tell us about the occasion and send the order to the studio on WhatsApp. The studio confirms availability and the final price with you.</p>
+      </div>
+      <div class="order-grid">
+        <form id="orderForm" novalidate>
+          <fieldset>
+            <legend>1. Package</legend>
+            <div class="opts" id="pkOpts"></div>
+          </fieldset>
+          <fieldset>
+            <legend>2. Length of coverage</legend>
+            <div class="stepper" role="group" aria-label="Quantity">
+              <button type="button" id="minus" aria-label="Fewer">&minus;</button>
+              <output id="qty" aria-live="polite">1</output>
+              <button type="button" id="plus" aria-label="More">+</button>
+            </div>
+            <p class="small" id="qtyHint" style="margin-top:10px"></p>
+          </fieldset>
+          <fieldset>
+            <legend>3. The occasion</legend>
+            <div class="row">
+              <div class="f"><label for="occasion">Occasion</label>
+                <select id="occasion">
+                  <option>Wedding</option><option>Birthday or celebration</option><option>Graduation</option><option>Maternity or family</option><option>Portraits</option><option>Corporate event</option><option>School sports or trip</option><option>Wall portraits</option><option>Other</option>
+                </select></div>
+              <div class="f"><label for="date">Event date</label><input type="date" id="date" required></div>
+            </div>
+            <div class="f"><label for="venue">Venue or area</label><input type="text" id="venue" placeholder="e.g. Cultures Resort, Marondera" autocomplete="off"></div>
+          </fieldset>
+          <fieldset>
+            <legend>4. Your details</legend>
+            <div class="row">
+              <div class="f"><label for="name">Full name</label><input type="text" id="name" autocomplete="name" required></div>
+              <div class="f"><label for="phone">WhatsApp number</label><input type="tel" id="phone" autocomplete="tel" placeholder="07XX XXX XXX" required></div>
+            </div>
+            <div class="f"><label for="notes">Anything else we should know</label><textarea id="notes" placeholder="Number of guests, shot list, deadlines"></textarea></div>
+          </fieldset>
+          <p class="err" id="err" role="alert"></p>
+          <button class="btn" type="submit">Prepare my order</button>
+        </form>
+
+        <aside class="summary" aria-label="Order summary">
+          <h3>Your order</h3>
+          <dl>
+            <div><dt>Package</dt><dd id="sPkg"></dd></div>
+            <div><dt>Coverage</dt><dd id="sQty"></dd></div>
+            <div><dt>Rate</dt><dd id="sRate"></dd></div>
+          </dl>
+          <ul class="inc" id="sInc"></ul>
+          <div class="total"><span>Estimated total</span><b id="sTotal"></b></div>
+          <p class="small">The estimate covers the package only. Travel outside Marondera and extras are agreed with the studio before the booking is confirmed.</p>
+          <div class="done" id="done" hidden>
+            <h3>Order ready to send</h3>
+            <p class="small" id="ref"></p>
+            <pre id="msg"></pre>
+            <div class="acts">
+              <a class="btn" id="wa" href="#" target="_blank" rel="noopener">Send on WhatsApp</a>
+              <button class="btn ghost" type="button" id="copy">Copy order</button>
+            </div>
+            <p class="ok" id="copied" role="status"></p>
+            <p class="small">Nothing is sent until you tap Send on WhatsApp and press send in the chat.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="brand" style="margin-bottom:14px"><img class="logo" src="assets/logo.png" alt="" width="44" height="42"><span><b>ROYAL</b><small>Arts Pictures</small></span></div>
+      <p class="tagline">Capturing Moments. Creating Memories.</p>
+    </div>
+    <div>
+      <h3>Call or WhatsApp</h3>
+      <p><a href="tel:+263771099158"><b>0771 099 158</b></a> Wagwiziey</p>
+      <p><a href="tel:+263783029567"><b>0783 029 567</b></a> Shanto</p>
+      <p><a href="tel:+263652323198"><b>+263 65 2323198</b></a> Landline</p>
+      <p><a href="mailto:wagwizieymediaofficial@gmail.com">wagwizieymediaofficial@gmail.com</a></p>
+      <p><a href="https://www.facebook.com/search/pages?q=Wagwizi%20Royal%20Arts" target="_blank" rel="noopener">Facebook: Wagwizi Royal Arts</a></p>
+    </div>
+    <div>
+      <h3>Visit</h3>
+      <p>The Green, Mufuka House, Room 5 Upstairs</p>
+      <p>Marondera, Zimbabwe</p>
+      <p>Open every day, 09:00 to 18:00</p>
+      <p><a href="contact.html">Map and directions</a></p>
+    </div>
+    <p class="fine">Muspearz Investments (Pvt) Ltd, trading as Royal Arts Picture. Website concept for client review.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

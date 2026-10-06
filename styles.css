@@ -40,7 +40,7 @@ nav { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
 nav a.l { color: var(--muted); text-decoration: none; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
 nav a.l:hover { color: var(--gold-hi); }
 nav .btn { min-height: 38px; padding: 0 16px; font-size: 12px; }
-@media (max-width: 760px) { nav a.l { display: none; } }
+
 
 /* hero */
 .hero { padding-block: 56px 64px; }
@@ -291,3 +291,21 @@ body { background: radial-gradient(1200px 600px at 50% -10%, rgba(201,162,77,.16
 .grp:first-of-type { margin-top: 0; }
 .optgrp { margin: 10px 0 2px; font-size: 13px; color: var(--gold); letter-spacing: .06em; }
 .card .small a, footer p a { overflow-wrap: anywhere; }
+
+/* Multi-page: menu, page heads, sticky button fix */
+.head h1 { font-size: clamp(28px, 5vw, 46px); }
+.head h1::after { content: ""; display: block; width: 56px; height: 2px; margin-top: 16px; background: linear-gradient(90deg, var(--gold), transparent); }
+nav a.l[aria-current="page"] { color: var(--gold-hi); border-bottom: 1px solid var(--gold); }
+.menu { display: none; min-height: 40px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--gold); background: transparent; color: var(--gold-hi); font: 500 15px var(--body); cursor: pointer; }
+.pk.go { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) {
+  .pk.go { grid-template-columns: minmax(0, 1fr); }
+  .bar .wrap { flex-wrap: nowrap; }
+  .menu { display: inline-flex; align-items: center; margin-left: auto; }
+  nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; background: rgba(11,10,8,.98); border-bottom: 1px solid var(--line); padding: 8px 20px 18px; }
+  nav.open { display: flex; }
+  nav a.l { display: block; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; letter-spacing: .06em; }
+  nav .btn { margin-top: 14px; min-height: 46px; font-size: 15px; }
+}
+.sticky-wa { white-space: nowrap; font-size: 15px; padding: 0 24px; width: auto; max-width: calc(100vw - 32px); }
+@media (max-width: 760px) { nav { background: #0b0a08; z-index: 30; } nav .btn { color: #1a1407; background: var(--gold); } }
