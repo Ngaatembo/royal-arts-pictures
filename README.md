@@ -17,7 +17,7 @@ Static website concept for Royal Arts Pictures (Muspearz Investments (Pvt) Ltd),
 Open `index.html` in a browser, or run `python3 -m http.server 8000` and visit http://localhost:8000.
 
 ## Edit prices and WhatsApp number
-Open `app.js`. The `PK` list holds the packages and prices. `WA` holds the WhatsApp number in international format without the plus sign.
+Open `app.js`. The `PACKAGES` list holds the packages and prices. `BOOKING_WHATSAPP` holds the WhatsApp number in international format without the plus sign.
 
 ## Deploy
 Any static host works. For Cloudflare Pages: connect this repo, leave the build command empty and set the output directory to `/`.
