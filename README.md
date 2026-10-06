@@ -26,3 +26,6 @@ Cloudflare Workers Builds: build command `npm run build` (does nothing), deploy 
 - Replace the cropped photos and logo with the original files from the client
 - Confirm prices, working hours and travel charges with the client
 - Decide where orders should be stored if WhatsApp alone is not enough
+
+## Adding videos
+Put the video in `assets/videos/` (Cloudflare serves files up to 25 MB each, so compress long clips or use a YouTube embed). Then add one line to the `VIDEOS` list at the top of `app.js`. The "Highlight films" section on the Our work page fills in by itself.

@@ -29,6 +29,12 @@ const PACKAGES = [
     description: "Coverage that does not fit a package, including wall portraits.", included: [] }
 ];
 
+/* 2b. VIDEO DATA -------------------------------------------------------- */
+// Add real videos here. Upload the file to assets/videos/ (keep each file under 25 MB) and add one line:
+//   { title: "Wedding highlight", src: "assets/videos/wedding.mp4", poster: "assets/photos/couple.jpg" },
+// For a YouTube video use: { title: "...", embed: "https://www.youtube.com/embed/VIDEO_ID" }
+const VIDEOS = [];
+
 /* 3. DOM REFERENCES ------------------------------------------------------ */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -170,6 +176,17 @@ function filterGallery(f) {
   $$("figure", el.gal).forEach(fig => (fig.hidden = f !== "all" && fig.dataset.c !== f));
 }
 
+function renderVideos() {
+  const box = $("#vids"); if (!box) return;
+  if (!VIDEOS.length) {
+    box.innerHTML = `<figure class="vid soon"><img src="assets/photos/couple.jpg" alt="" loading="lazy"><figcaption><b>Highlight films coming soon</b><span>Wedding and event films will play here.</span></figcaption></figure>`;
+    return;
+  }
+  box.innerHTML = VIDEOS.map(v => `<figure class="vid">${v.embed
+    ? `<iframe src="${v.embed}" title="${v.title}" loading="lazy" allowfullscreen></iframe>`
+    : `<video controls playsinline preload="none" ${v.poster ? `poster="${v.poster}"` : ""}><source src="${v.src}" type="video/mp4"></video>`}<figcaption>${v.title}</figcaption></figure>`).join("");
+}
+
 /* 10. LIGHTBOX ----------------------------------------------------------- */
 const lb = document.createElement("div");
 lb.className = "lb"; lb.hidden = true; lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true"); lb.setAttribute("aria-label", "Photo viewer");
@@ -215,6 +232,7 @@ function addStickyCta() {
 
 function init() {
   renderPackages();
+  renderVideos();
   if (el.form) {
     el.date.min = todayISO();
     const want = new URLSearchParams(location.search).get("pkg");
