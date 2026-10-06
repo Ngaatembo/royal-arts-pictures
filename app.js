@@ -31,7 +31,7 @@ const el = {
   grid: $("#pkGrid"), opts: $("#pkOpts"), form: $("#orderForm"), minus: $("#minus"), plus: $("#plus"),
   qty: $("#qty"), hint: $("#qtyHint"), err: $("#err"), date: $("#date"), name: $("#name"), phone: $("#phone"),
   occasion: $("#occasion"), venue: $("#venue"), notes: $("#notes"),
-  sPkg: $("#sPkg"), sQty: $("#sQty"), sRate: $("#sRate"), sTotal: $("#sTotal"),
+  sInc: $("#sInc"), sPkg: $("#sPkg"), sQty: $("#sQty"), sRate: $("#sRate"), sTotal: $("#sTotal"),
   done: $("#done"), ref: $("#ref"), msg: $("#msg"), wa: $("#wa"), copy: $("#copy"), copied: $("#copied"),
   gal: $("#gal"), chips: $$(".chip")
 };
@@ -72,6 +72,7 @@ function updateSummary() {
   el.plus.disabled = p.custom || state.qty >= MAX_QTY;
   el.hint.textContent = p.custom ? "Coverage is agreed with the studio in the quotation." :
     `${p.billing === "day" ? "Charged per day" : "Charged per hour"}. Choose 1 to ${MAX_QTY} ${unit(p, 2)}.`;
+  el.sInc.innerHTML = [p.description, ...p.included].filter(Boolean).map(i => `<li>${i}</li>`).join("");
   el.sPkg.textContent = p.name;
   el.sQty.textContent = p.custom ? "To be discussed" : `${state.qty} ${unit(p, state.qty)}`;
   el.sRate.textContent = priceText(p);
@@ -158,17 +159,23 @@ function filterGallery(f) {
 /* 10. LIGHTBOX ----------------------------------------------------------- */
 const lb = document.createElement("div");
 lb.className = "lb"; lb.hidden = true; lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true"); lb.setAttribute("aria-label", "Photo viewer");
-lb.innerHTML = '<button type="button" class="lb-x" aria-label="Close photo">&times;</button><figure><img alt=""><figcaption></figcaption></figure>';
+lb.innerHTML = '<button type="button" class="lb-x" aria-label="Close photo">&times;</button><button type="button" class="lb-n lb-prev" aria-label="Previous photo">&#8249;</button><figure><img alt=""><figcaption></figcaption></figure><button type="button" class="lb-n lb-next" aria-label="Next photo">&#8250;</button>';
 document.body.appendChild(lb);
-let lastFocus = null;
+let lastFocus = null, lbList = [], lbIdx = 0;
 
-function openLightbox(fig) {
-  const img = $("img", fig);
-  lastFocus = fig;
+function showLightbox(i) {
+  lbIdx = (i + lbList.length) % lbList.length;
+  const fig = lbList[lbIdx], img = $("img", fig);
   $("img", lb).src = img.currentSrc || img.src;
   $("img", lb).alt = img.alt;
-  $("figcaption", lb).textContent = $("figcaption", fig).textContent;
+  $("figcaption", lb).textContent = `${$("figcaption", fig).textContent}  (${lbIdx + 1} of ${lbList.length})`;
+}
+function openLightbox(fig) {
+  lastFocus = fig;
+  lbList = $$("figure", el.gal).filter(f => !f.hidden);
   lb.hidden = false; document.body.style.overflow = "hidden";
+  $$(".lb-n", lb).forEach(b => (b.hidden = lbList.length < 2));
+  showLightbox(lbList.indexOf(fig));
   $(".lb-x", lb).focus();
 }
 function closeLightbox() {
@@ -176,6 +183,13 @@ function closeLightbox() {
   lb.hidden = true; document.body.style.overflow = "";
   if (lastFocus) lastFocus.focus();
 }
+let touchX = null;
+lb.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+lb.addEventListener("touchend", e => {
+  if (touchX == null) return;
+  const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+  if (Math.abs(dx) > 50 && lbList.length > 1) showLightbox(lbIdx + (dx < 0 ? 1 : -1));
+});
 
 /* 11. UI HELPERS AND WIRING ---------------------------------------------- */
 function addStickyCta() {
@@ -218,8 +232,13 @@ function init() {
     fig.addEventListener("click", () => openLightbox(fig));
     fig.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(fig); } });
   });
-  lb.addEventListener("click", e => { if (e.target === lb || e.target.closest(".lb-x")) closeLightbox(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+  lb.addEventListener("click", e => { if (e.target.closest(".lb-prev")) showLightbox(lbIdx - 1);
+    else if (e.target.closest(".lb-next")) showLightbox(lbIdx + 1);
+    else if (e.target === lb || e.target.closest(".lb-x")) closeLightbox(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeLightbox();
+    if (!lb.hidden && lbList.length > 1 && (e.key === "ArrowRight" || e.key === "ArrowLeft")) showLightbox(lbIdx + (e.key === "ArrowRight" ? 1 : -1));
+  });
   addStickyCta();
 }
 init();
